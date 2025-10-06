@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { checkUser } from "@/lib/checkUser"; 
 
 export default function Navbar() {
+  const user = checkUser();
+
   return (
+
     <header className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 text-white shadow-md">
       = <h1 className="text-2xl font-bold">Sarah’s Dashboard</h1>
       <nav className="flex items-center gap-8 text-base font-medium">
