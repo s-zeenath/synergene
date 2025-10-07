@@ -3,7 +3,7 @@ import Link from "next/link";
 
 interface ButtonProps {
   children: React.ReactNode;
-  href?: string; // for navigation
+  href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
   className?: string;
