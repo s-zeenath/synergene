@@ -1,5 +1,4 @@
 import React from "react";
-import Navbar from "@/components/ui/Navbar";
 import SavedPredictionsCard from "@/components/dashboard/SavedPredictionsCard";
 import LookupDrugCard from "@/components/dashboard/LookupDrugCard";
 import NewPredictionCard from "@/components/dashboard/NewPrediction";
@@ -21,8 +20,6 @@ export default function DashboardPage() {
 
   return (
     <main className="relative min-h-screen bg-blue-100">
-      <Navbar />
-
       <div className="px-6 md:px-12 lg:px-24 py-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-start">
           <div className="flex flex-col gap-6">

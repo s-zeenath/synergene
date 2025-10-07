@@ -1,3 +1,5 @@
+"use client";
+import { useTheme } from "@/components/ui/ThemeToggle";
 import { ReactNode } from "react";
 
 interface CardProps {
@@ -5,7 +7,6 @@ interface CardProps {
   children: ReactNode;
   minHeight?: string;
   className?: string;
-  bgColor?: string;
 }
 
 export default function Card({
@@ -13,11 +14,17 @@ export default function Card({
   children,
   minHeight = "300px",
   className = "",
-  bgColor = "bg-blue-950/95",
 }: CardProps) {
+  const { theme } = useTheme();
+
+  const bg =
+    theme === "light"
+      ? "bg-white border border-gray-200 text-black"
+      : "bg-blue-950/95 text-white";
+
   return (
     <section
-      className={`${bgColor} text-white p-4 sm:p-6 rounded-2xl shadow w-full ${className}`}
+      className={`${bg} p-4 sm:p-6 rounded-2xl shadow w-full ${className}`}
       style={{ minHeight }}
     >
       {title && (

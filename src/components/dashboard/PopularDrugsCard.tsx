@@ -1,28 +1,35 @@
 "use client";
+
 import React from "react";
 import Card from "@/components/ui/Card";
+import { useTheme } from "@/components/ui/ThemeToggle";
 
 interface PopularDrugsCardProps {
   drugs: { name: string; count: number }[];
 }
 
 export default function PopularDrugsCard({ drugs }: PopularDrugsCardProps) {
+  const { theme } = useTheme();
+
+  const textColor = theme === "light" ? "text-gray-900" : "text-white";
+  const highlightColor = theme === "light" ? "text-blue-600" : "text-blue-400";
+
   return (
     <Card>
-      <p className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">
-        <span className="text-white">The most popular </span>
-        <span className="text-blue-400">drugs</span>
-        <span className="text-white"> used were:</span>
+      <p className={`text-xl sm:text-2xl md:text-3xl font-bold mb-4`}>
+        <span className={textColor}>The most popular </span>
+        <span className={highlightColor}>drugs</span>
+        <span className={textColor}> used were:</span>
       </p>
 
       <div className="flex flex-col gap-2 mb-6 pl-6 pr-6">
         {drugs.map((drug, i) => (
           <div
             key={i}
-            className="flex justify-between text-lg sm:text-xl md:text-2xl font-semibold text-white"
+            className={`flex justify-between text-lg sm:text-xl md:text-2xl font-semibold ${textColor}`}
           >
             <span>{drug.name}</span>
-            <span className="text-blue-400 pr-4">{drug.count}</span>
+            <span className={highlightColor + " pr-4"}>{drug.count}</span>
           </div>
         ))}
       </div>
