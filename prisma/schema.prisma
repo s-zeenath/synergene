@@ -21,17 +21,101 @@ model User {
   imageUrl String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  Records   Record[]
+
+  predictions Prediction[]
+  experiments Experiment[]
+  reports     Report[]
 }
 
-model Record {
-  id         String   @id @default(uuid())
-  text       String
-  amount     Float
-  category   String @default("other")
-  date       DateTime @default(now())
-  userId     String
-  user       User     @relation(fields: [userId], references: [clerkUserId], onDelete: Cascade)
+model Drug {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  target     String?
+  mechanism  String?
+  associates String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  predictionsA Prediction[] @relation("predDrugA")
+  predictionsB Prediction[] @relation("predDrugB")
+  experimentsA Experiment[] @relation("expDrugA")
+  experimentsB Experiment[] @relation("expDrugB")
+}
+
+model CellLine {
+  id        String   @id @default(cuid())
+  code      String   @unique 
+  tissue    String? 
   createdAt DateTime @default(now())
-  @@index([userId])
-} 
+  updatedAt DateTime @updatedAt
+
+  predictions Prediction[]
+  experiments Experiment[]
+}
+
+model Prediction {
+  id             String      @id @default(cuid())
+  userId         String
+  name           String? 
+  drugAId        String
+  drugBId        String
+  cellLineId     String
+  targetA        String? 
+  targetB        String? 
+  synergy        Float 
+  confidence     Confidence
+  bestConcA      Float?
+  bestConcB      Float?
+  patientDataUrl String?
+  heatmap        Json?
+  createdAt      DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drugA    Drug     @relation("predDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
+  drugB    Drug     @relation("predDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
+  cellLine CellLine @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([cellLineId])
+  @@index([drugAId, drugBId])
+}
+
+model Experiment {
+  id            String   @id @default(cuid())
+  userId        String
+  drugAId       String
+  drugBId       String
+  cellLineId    String
+  targetA       String?
+  targetB       String?
+  testedAt      DateTime @default(now())
+  isSynergistic Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drugA    Drug     @relation("expDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
+  drugB    Drug     @relation("expDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
+  cellLine CellLine @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
+
+  @@index([testedAt])
+  @@index([cellLineId])
+  @@index([drugAId, drugBId])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  fileUrl   String?
+  createdAt DateTime @default(now())
+
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+enum Confidence {
+  LOW
+  MEDIUM
+  HIGH
+}
