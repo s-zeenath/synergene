@@ -1,40 +1,69 @@
+"use client";
+
 import Link from "next/link";
-import { checkUser } from "@/lib/checkUser";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-  const user = checkUser();
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/sign-in");
+  };
 
   return (
-    <header className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 text-white shadow-md">
-      <h1 className="text-2xl font-bold">Sarah’s Dashboard</h1>
+    <header className="flex items-center justify-between px-8 py-3 bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 text-white shadow-md rounded-b-lg">
+      <div className="flex items-center gap-2">
+        {mounted && isSignedIn && user ? (
+          <>
+            <span className="text-2xl font-bold">{user.firstName}'s</span>
+            <span className="text-2xl font-bold">dashboard</span>
+          </>
+        ) : (
+          <div></div>
+        )}
+      </div>
 
-      <nav className="flex items-center gap-8 text-base font-medium">
-        <Link href="/" className="hover:text-blue-200 transition-colors">
-          About
-        </Link>
-        <Link href="/profile" className="hover:text-blue-200 transition-colors">
-          Profile
-        </Link>
-        <Link
-          href="/dashboard"
-          className="hover:text-blue-200 transition-colors"
-        >
-          Dashboard
-        </Link>
-        <Link href="/help" className="hover:text-blue-200 transition-colors">
-          Help
-        </Link>
+      <div className="flex items-center gap-4">
+        {mounted && isSignedIn && (
+          <>
+            {["About", "Profile", "Dashboard", "Results"].map((item) => (
+              <Link
+                key={item}
+                href={`/${item.toLowerCase()}`}
+                className="font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                {item}
+              </Link>
+            ))}
+          </>
+        )}
 
-        {/* Logo */}
-        <div className="bg-white p-2 rounded-lg flex items-center justify-center shadow-md ml-4">
-          <img src="/logo.png" alt="logo" className="h-10 w-auto" />
+        {mounted && isSignedIn && (
+          <button
+            onClick={handleSignOut}
+            className="font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Logout
+          </button>
+        )}
+
+        {mounted && isSignedIn && <ThemeToggle />}
+
+        <div className="bg-white p-2 rounded-lg shadow-md">
+          <img src="/logo.png" className="h-10 w-auto" alt="Logo" />
         </div>
-
-        <div className="ml-4">
-          <ThemeToggle />
-        </div>
-      </nav>
+      </div>
     </header>
   );
 }

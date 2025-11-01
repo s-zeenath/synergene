@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { useEffect } from "react";
 import SavedPredictionsCard from "@/components/dashboard/SavedPredictionsCard";
 import LookupDrugCard from "@/components/dashboard/LookupDrugCard";
 import NewPredictionCard from "@/components/dashboard/NewPrediction";
@@ -7,6 +10,26 @@ import PopularDrugsCard from "@/components/dashboard/PopularDrugsCard";
 import ReportCard from "@/components/dashboard/ReportCard";
 
 export default function DashboardPage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      redirect("/sign-in");
+    }
+  }, [isLoaded, isSignedIn]);
+
+  if (!isLoaded || !isSignedIn) {
+    return (
+      <main className="relative min-h-screen bg-blue-100">
+        <div className="px-6 md:px-12 lg:px-24 py-6 relative z-10">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg">Loading...</div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   const predictions = [
     { drugA: "Cyclocytidine", drugB: "Chlorambucil", score: "90%" },
     { drugA: "Nilotinib", drugB: "Fludarabine", score: "85%" },
