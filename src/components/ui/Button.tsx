@@ -23,11 +23,11 @@ export default function Button({
 
   const variants = {
     primary:
-      theme === "light"
+      theme === "dark"
         ? "bg-blue-500 text-white hover:bg-blue-600"
         : "bg-blue-500 text-white hover:bg-blue-400",
     secondary:
-      theme === "light"
+      theme === "dark"
         ? "bg-gray-200 text-black hover:bg-gray-300"
         : "bg-slate-600 text-white hover:bg-slate-500",
   };

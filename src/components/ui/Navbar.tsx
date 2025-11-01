@@ -5,10 +5,12 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const { theme } = useTheme();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -21,13 +23,19 @@ export default function Navbar() {
     router.push("/sign-in");
   };
 
+  const textColor = theme === "light" ? "white" : "black";
+
   return (
-    <header className="flex items-center justify-between px-8 py-3 bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 text-white shadow-md rounded-b-lg">
+    <header className="flex items-center justify-between px-8 py-3">
       <div className="flex items-center gap-2">
         {mounted && isSignedIn && user ? (
           <>
-            <span className="text-2xl font-bold">{user.firstName}'s</span>
-            <span className="text-2xl font-bold">dashboard</span>
+            <span className="text-2xl font-bold" style={{ color: textColor }}>
+              {user.firstName}'s
+            </span>
+            <span className="text-2xl font-bold" style={{ color: textColor }}>
+              dashboard
+            </span>
           </>
         ) : (
           <div></div>
@@ -41,7 +49,8 @@ export default function Navbar() {
               <Link
                 key={item}
                 href={`/${item.toLowerCase()}`}
-                className="font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="font-bold px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/10 transition"
+                style={{ color: textColor }}
               >
                 {item}
               </Link>
@@ -52,7 +61,8 @@ export default function Navbar() {
         {mounted && isSignedIn && (
           <button
             onClick={handleSignOut}
-            className="font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="font-bold px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/10 transition"
+            style={{ color: textColor }}
           >
             Logout
           </button>
@@ -60,8 +70,12 @@ export default function Navbar() {
 
         {mounted && isSignedIn && <ThemeToggle />}
 
-        <div className="bg-white p-2 rounded-lg shadow-md">
-          <img src="/logo.png" className="h-10 w-auto" alt="Logo" />
+        <div className="p-2 rounded-lg">
+          <img
+            src="/logo.png"
+            className="h-10 w-auto rounded-full"
+            alt="Logo"
+          />
         </div>
       </div>
     </header>

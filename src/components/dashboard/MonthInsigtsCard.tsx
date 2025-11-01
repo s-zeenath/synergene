@@ -43,11 +43,10 @@ export default function MonthInsightsCard({
     { cellLine: "CF12", occurrences: 5 },
   ];
 
-  // Colors based on theme
   const COLORS =
     theme === "light" ? ["#3b82f6", "#1e40af"] : ["#60a5fa", "#1e3a8a"];
   const textColor = theme === "light" ? "text-gray-900" : "text-white";
-  const highlightBlue = theme === "light" ? "text-blue-600" : "text-blue-400"; // <-- match SavedPredictionsCard
+  const highlightBlue = theme === "light" ? "text-blue-600" : "text-blue-400";
   const chartBackground = theme === "light" ? "bg-gray-100" : "bg-white/10";
   const chartStrokeColor = theme === "light" ? "#1e40af" : "#1e3a8a";
 

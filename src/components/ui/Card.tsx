@@ -19,7 +19,7 @@ export default function Card({
 
   const bg =
     theme === "light"
-      ? "bg-white border border-gray-200 text-black"
+      ? "bg-[#f0edeb] border border-gray-200 text-black"
       : "bg-blue-950/95 text-white";
 
   return (
