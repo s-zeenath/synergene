@@ -6,11 +6,13 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ui/ThemeToggle";
+import { useNavbar } from "@/app/contexts/NavbarContext";
 
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const { theme } = useTheme();
+  const { pageTitle } = useNavbar();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -34,7 +36,7 @@ export default function Navbar() {
               {user.firstName}'s
             </span>
             <span className="text-2xl font-bold" style={{ color: textColor }}>
-              dashboard
+              {pageTitle}
             </span>
           </>
         ) : (

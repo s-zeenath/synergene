@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ui/ThemeToggle";
 import Navbar from "@/components/ui/Navbar";
+import { NavbarProvider } from "@/app/contexts/NavbarContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,10 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ThemeProvider>
-            <Navbar />
-            {children}
+            <NavbarProvider>
+              <Navbar />
+              {children}
+            </NavbarProvider>
           </ThemeProvider>
         </body>
       </html>

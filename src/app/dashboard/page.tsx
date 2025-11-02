@@ -9,16 +9,19 @@ import NewPredictionCard from "@/components/dashboard/NewPrediction";
 import MonthInsightsCard from "@/components/dashboard/MonthInsigtsCard";
 import PopularDrugsCard from "@/components/dashboard/PopularDrugsCard";
 import ReportCard from "@/components/dashboard/ReportCard";
+import { useNavbar } from "../contexts/NavbarContext";
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { theme } = useTheme();
+  const { setPageTitle } = useNavbar();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
       redirect("/sign-in");
     }
-  }, [isLoaded, isSignedIn]);
+    setPageTitle("dashboard");
+  }, [isLoaded, isSignedIn, setPageTitle]);
 
   if (!isLoaded || !isSignedIn) {
     return (

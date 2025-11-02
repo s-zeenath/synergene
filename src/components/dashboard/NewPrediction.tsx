@@ -1,20 +1,16 @@
 "use client";
-
 import React from "react";
-import Card from "@/components/ui/Card";
+import Card, { useCardTheme } from "@/components/ui/Card";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "@/components/ui/ThemeToggle";
 
 export default function NewPredictionCard() {
-  const { theme } = useTheme();
-
-  const titleColor = theme === "light" ? "text-gray-900" : "text-white";
+  const { textColor } = useCardTheme();
 
   return (
     <Card className="flex flex-col items-center justify-between min-h-[200px] py-4">
       <Link
-        href="/new-prediction"
+        href="dashboard/newPrediction"
         className="flex-1 flex items-center justify-center w-full"
       >
         <Image
@@ -26,7 +22,7 @@ export default function NewPredictionCard() {
         />
       </Link>
 
-      <h3 className={`font-semibold text-lg mt-4 ${titleColor}`}>
+      <h3 className={`font-semibold text-lg mt-4 ${textColor}`}>
         Make New Prediction
       </h3>
     </Card>

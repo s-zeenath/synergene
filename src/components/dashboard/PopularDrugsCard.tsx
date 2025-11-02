@@ -1,18 +1,13 @@
 "use client";
-
 import React from "react";
-import Card from "@/components/ui/Card";
-import { useTheme } from "@/components/ui/ThemeToggle";
+import Card, { useCardTheme } from "@/components/ui/Card";
 
 interface PopularDrugsCardProps {
   drugs: { name: string; count: number }[];
 }
 
 export default function PopularDrugsCard({ drugs }: PopularDrugsCardProps) {
-  const { theme } = useTheme();
-
-  const textColor = theme === "light" ? "text-gray-900" : "text-white";
-  const highlightColor = theme === "light" ? "text-blue-600" : "text-blue-400";
+  const { textColor, highlightColor } = useCardTheme();
 
   return (
     <Card>
