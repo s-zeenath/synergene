@@ -105,7 +105,7 @@ export default function MonthInsightsCard({
             <Button
               variant="primary"
               className="w-full md:w-auto"
-              href="/all-predictions"
+              href="dashboard/all-prediction/page.tsx"
             >
               View all predictions
             </Button>

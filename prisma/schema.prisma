@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,17 +9,16 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  clerkUserId  String     @unique
-  email     String      @unique
-  name      String?
-  imageUrl String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id          String    @id @default(uuid())
+  clerkUserId String    @unique
+  email       String    @unique
+  name        String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   predictions Prediction[]
-  experiments Experiment[]
-  reports     Report[]
+  reports     Report[]  // Removed experiments
 }
 
 model Drug {
@@ -38,8 +32,7 @@ model Drug {
 
   predictionsA Prediction[] @relation("predDrugA")
   predictionsB Prediction[] @relation("predDrugB")
-  experimentsA Experiment[] @relation("expDrugA")
-  experimentsB Experiment[] @relation("expDrugB")
+  // Removed experimentsA and experimentsB
 }
 
 model CellLine {
@@ -50,25 +43,22 @@ model CellLine {
   updatedAt DateTime @updatedAt
 
   predictions Prediction[]
-  experiments Experiment[]
+  // Removed experiments
 }
 
 model Prediction {
   id             String      @id @default(cuid())
   userId         String
-  name           String? 
+  name           String?    
   drugAId        String
   drugBId        String
   cellLineId     String
-  targetA        String? 
-  targetB        String? 
-  synergy        Float 
-  confidence     Confidence
-  bestConcA      Float?
-  bestConcB      Float?
-  patientDataUrl String?
-  heatmap        Json?
-  createdAt      DateTime @default(now())
+  concentrationA Float       
+  concentrationB Float       
+  synergyScore   Float       
+  confidence     Float       
+  confidenceLevel Confidence 
+  createdAt      DateTime    @default(now())
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   drugA    Drug     @relation("predDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
@@ -78,28 +68,13 @@ model Prediction {
   @@index([userId, createdAt])
   @@index([cellLineId])
   @@index([drugAId, drugBId])
+  @@index([name]) 
 }
 
-model Experiment {
-  id            String   @id @default(cuid())
-  userId        String
-  drugAId       String
-  drugBId       String
-  cellLineId    String
-  targetA       String?
-  targetB       String?
-  testedAt      DateTime @default(now())
-  isSynergistic Boolean  @default(false)
-  createdAt     DateTime @default(now())
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  drugA    Drug     @relation("expDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
-  drugB    Drug     @relation("expDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
-  cellLine CellLine @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
-
-  @@index([testedAt])
-  @@index([cellLineId])
-  @@index([drugAId, drugBId])
+enum Confidence {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 model Report {
@@ -114,8 +89,19 @@ model Report {
   @@index([userId, createdAt])
 }
 
-enum Confidence {
-  LOW
-  MEDIUM
-  HIGH
+model DrugCombination {
+  id          String   @id @default(cuid())
+  drugA       String   
+  drugB       String   
+  cellLine    String   
+  minConcA    Float    
+  maxConcA    Float    
+  minConcB    Float    
+  maxConcB    Float    
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([drugA, drugB, cellLine])
+  @@index([drugA, drugB])
+  @@index([cellLine])
 }

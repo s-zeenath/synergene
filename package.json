@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.33.3",
     "@prisma/client": "^6.16.3",
+    "csv-parser": "^3.2.0",
     "lucide-react": "^0.545.0",
     "next": "15.5.3",
     "react": "19.1.0",
@@ -29,6 +30,7 @@
     "postcss": "^8.5.6",
     "prisma": "^6.16.3",
     "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

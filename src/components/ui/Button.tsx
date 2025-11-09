@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/components/ui/ThemeToggle";
+import { useEffectiveTheme } from "@/app/contexts/InvertedTabContext";
 import Link from "next/link";
 
 interface ButtonProps {
@@ -8,6 +8,7 @@ interface ButtonProps {
   onClick?: () => void;
   variant?: "primary" | "secondary";
   className?: string;
+  disabled?: boolean;
 }
 
 export default function Button({
@@ -16,18 +17,20 @@ export default function Button({
   onClick,
   variant = "secondary",
   className = "",
+  disabled = false,
 }: ButtonProps) {
-  const { theme } = useTheme();
+  const effectiveTheme = useEffectiveTheme();
 
-  const base = "px-5 py-2.5 rounded-lg text-base font-medium transition";
+  const base =
+    "px-5 py-2.5 rounded-lg text-base font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
     primary:
-      theme === "dark"
+      effectiveTheme === "dark"
         ? "bg-blue-500 text-white hover:bg-blue-600"
         : "bg-blue-500 text-white hover:bg-blue-400",
     secondary:
-      theme === "dark"
+      effectiveTheme === "dark"
         ? "bg-gray-200 text-black hover:bg-gray-300"
         : "bg-slate-600 text-white hover:bg-slate-500",
   };
@@ -42,7 +45,7 @@ export default function Button({
     );
 
   return (
-    <button onClick={onClick} className={final}>
+    <button onClick={onClick} className={final} disabled={disabled}>
       {children}
     </button>
   );

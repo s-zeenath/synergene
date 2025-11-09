@@ -91,7 +91,7 @@ export default function SavedPredictionsCard({
 
       <div className="mt-4 flex justify-center">
         <Button
-          href="/saved-predictions"
+          href="dashboard/saved-prediction/page.tsx"
           variant="secondary"
           className="w-full sm:w-auto"
         >

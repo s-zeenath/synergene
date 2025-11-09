@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/components/ui/ThemeToggle";
+import { useEffectiveTheme } from "@/app/contexts/InvertedTabContext";
 import { ReactNode } from "react";
 
 interface CardProps {
@@ -15,22 +15,24 @@ export default function Card({
   minHeight = "300px",
   className = "",
 }: CardProps) {
-  const { theme } = useTheme();
+  const effectiveTheme = useEffectiveTheme();
 
   const bg =
-    theme === "light"
+    effectiveTheme === "light"
       ? "bg-[#f0edeb] border border-gray-200"
       : "bg-blue-950/95";
 
-  const textColor = theme === "light" ? "text-gray-900" : "text-white";
-  const highlightColor = theme === "light" ? "text-blue-600" : "text-blue-400";
-  const secondaryBg = theme === "light" ? "bg-gray-100" : "bg-white/10";
+  const textColor = effectiveTheme === "light" ? "text-gray-900" : "text-white";
+  const highlightColor =
+    effectiveTheme === "light" ? "text-blue-600" : "text-blue-400";
+  const secondaryBg =
+    effectiveTheme === "light" ? "bg-gray-100" : "bg-white/10";
 
   return (
     <section
       className={`${bg} ${textColor} p-4 sm:p-6 rounded-2xl shadow w-full ${className}`}
       style={{ minHeight }}
-      data-theme={theme}
+      data-theme={effectiveTheme}
     >
       {title && (
         <h3 className="font-semibold mb-3 text-lg sm:text-xl">{title}</h3>
@@ -40,21 +42,24 @@ export default function Card({
   );
 }
 
-// Export theme utilities for more complex components
 export const useCardTheme = () => {
-  const { theme } = useTheme();
+  const effectiveTheme = useEffectiveTheme();
 
   return {
-    theme,
-    textColor: theme === "light" ? "text-gray-900" : "text-white",
-    highlightColor: theme === "light" ? "text-blue-600" : "text-blue-400",
-    secondaryBg: theme === "light" ? "bg-gray-100" : "bg-white/10",
+    theme: effectiveTheme,
+    textColor: effectiveTheme === "light" ? "text-gray-900" : "text-white",
+    highlightColor:
+      effectiveTheme === "light" ? "text-blue-600" : "text-blue-400",
+    secondaryBg: effectiveTheme === "light" ? "bg-gray-100" : "bg-white/10",
     chartColors:
-      theme === "light" ? ["#3b82f6", "#1e40af"] : ["#60a5fa", "#1e3a8a"],
-    chartStrokeColor: theme === "light" ? "#1e40af" : "#1e3a8a",
-    tableHeaderBg: theme === "light" ? "bg-gray-100" : "bg-slate-700/30",
+      effectiveTheme === "light"
+        ? ["#3b82f6", "#1e40af"]
+        : ["#60a5fa", "#1e3a8a"],
+    chartStrokeColor: effectiveTheme === "light" ? "#1e40af" : "#1e3a8a",
+    tableHeaderBg:
+      effectiveTheme === "light" ? "bg-gray-100" : "bg-slate-700/30",
     tableRowBorder:
-      theme === "light" ? "border-gray-300/40" : "border-slate-700/40",
-    emptyText: theme === "light" ? "text-gray-500" : "text-white/70",
+      effectiveTheme === "light" ? "border-gray-300/40" : "border-slate-700/40",
+    emptyText: effectiveTheme === "light" ? "text-gray-500" : "text-white/70",
   };
 };
