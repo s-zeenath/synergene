@@ -1,4 +1,6 @@
+// app/components/results/LogExpResultCard.tsx
 "use client";
+
 import React from "react";
 import Card from "@/components/ui/Card";
 import Image from "next/image";
@@ -7,7 +9,10 @@ import { useTheme } from "@/components/ui/ThemeToggle";
 
 export default function LogExperimentalResultCard() {
   const { theme } = useTheme();
-  const titleColor = theme === "light" ? "text-gray-900" : "text-white";
+  const isLight = theme === "light";
+
+  const titleColor    = isLight ? "text-gray-900" : "text-white";
+  const subtitleColor = isLight ? "text-gray-700" : "text-gray-300";
 
   return (
     <Card className="bg-[#184A80] text-white rounded-2xl p-6 h-full w-full flex flex-col items-center justify-center">
@@ -15,18 +20,24 @@ export default function LogExperimentalResultCard() {
         href="/results/log-experimental"
         className="flex flex-col items-center justify-center w-full h-full text-center cursor-pointer hover:scale-[1.01] transition-transform"
       >
-        <div className="relative w-2/3 max-w-[180px] aspect-square mb-4">
+        {/* IMAGE with more spacing */}
+        <div className="relative h-40 w-40 mb-8">
           <Image
-            src="/log.png"
+            src="/logg.png"
             alt="Log Experimental Result"
             fill
             className="object-contain"
-            sizes="(max-width: 768px) 80vw, (max-width: 1200px) 40vw, 25vw"
+            sizes="160px"
           />
         </div>
+
         <h3 className={`text-base md:text-lg font-semibold leading-snug ${titleColor}`}>
-          Log experimental result
+          Log Experimental Results
         </h3>
+
+        <p className={`mt-1 text-[13px] md:text-sm font-normal tracking-wide max-w-xs ${subtitleColor}`}>
+          Record and save your own experimental test results
+        </p>
       </Link>
     </Card>
   );

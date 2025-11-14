@@ -5,10 +5,9 @@ import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { useTheme } from "@/components/ui/ThemeToggle";
 import { useNavbar } from "../contexts/NavbarContext";
-
-import ComparePastPredictionsCard from "@/components/results/ComparePastPredictionsCard";
 import LogExpResultCard from "@/components/results/LogExpResultCard";
 import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
+import OldPredictionsCard from "@/components/results/OldPredictionsTable";
 
 export default function ResultsPage() {
   const { isLoaded, isSignedIn } = useUser();
@@ -42,7 +41,7 @@ export default function ResultsPage() {
     >
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 pt-16 pb-10 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full items-stretch min-h-[420px] md:min-h-[460px] lg:min-h-[480px]">
-          <ComparePastPredictionsCard />
+          <OldPredictionsCard />
           <LogExpResultCard />
           <PredictionSummaryCard className="h-full" />
         </div>
