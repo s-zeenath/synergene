@@ -12,8 +12,8 @@ export default function LogExperimentalResultCard() {
   return (
     <Card className="bg-[#184A80] text-white rounded-2xl p-6 h-full w-full flex flex-col items-center justify-center">
       <Link
-        href="/log-experiment"
-        className="flex flex-col items-center justify-center w-full h-full text-center"
+        href="/results/log-experimental"
+        className="flex flex-col items-center justify-center w-full h-full text-center cursor-pointer hover:scale-[1.01] transition-transform"
       >
         <div className="relative w-2/3 max-w-[180px] aspect-square mb-4">
           <Image
@@ -24,10 +24,7 @@ export default function LogExperimentalResultCard() {
             sizes="(max-width: 768px) 80vw, (max-width: 1200px) 40vw, 25vw"
           />
         </div>
-
-        <h3
-          className={`text-base md:text-lg font-semibold leading-snug ${titleColor}`}
-        >
+        <h3 className={`text-base md:text-lg font-semibold leading-snug ${titleColor}`}>
           Log experimental result
         </h3>
       </Link>

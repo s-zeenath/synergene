@@ -1,25 +1,23 @@
 "use client";
+
+import React, { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { useEffect } from "react";
 import { useTheme } from "@/components/ui/ThemeToggle";
 import { useNavbar } from "../contexts/NavbarContext";
 
-import React from "react";
 import ComparePastPredictionsCard from "@/components/results/ComparePastPredictionsCard";
 import LogExpResultCard from "@/components/results/LogExpResultCard";
 import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
 
-  export default function ResultsPage() {
-  const { isLoaded, isSignedIn, user } = useUser();
+export default function ResultsPage() {
+  const { isLoaded, isSignedIn } = useUser();
   const { theme } = useTheme();
   const { setPageTitle } = useNavbar();
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      redirect("/sign-in");
-    }
-    setPageTitle("results");
+    if (isLoaded && !isSignedIn) redirect("/sign-in");
+    setPageTitle("Results");
   }, [isLoaded, isSignedIn, setPageTitle]);
 
   if (!isLoaded || !isSignedIn) {
@@ -36,10 +34,6 @@ import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
       </main>
     );
   }
-      const predictions = [
-    { drugA: "Cyclocytidine", drugB: "Chlorambucil", score: "90%" },
-    { drugA: "Nilotinib", drugB: "Fludarabine", score: "85%" },
-  ];
 
   return (
     <main
@@ -56,4 +50,3 @@ import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
     </main>
   );
 }
-
