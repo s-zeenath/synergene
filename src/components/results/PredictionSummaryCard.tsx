@@ -32,7 +32,7 @@ export default function PredictionSummaryCard({ className = "" }: { className?: 
         </p>
 
         <Link
-          href="/prediction-summary"
+          href="/results/download-report"
           className="mt-6 inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-[#2B9FFF] hover:bg-[#1E8EEA] font-semibold text-white transition"
         >
           Download

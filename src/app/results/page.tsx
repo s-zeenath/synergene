@@ -1,25 +1,22 @@
 "use client";
+
+import React, { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { useEffect } from "react";
 import { useTheme } from "@/components/ui/ThemeToggle";
 import { useNavbar } from "../contexts/NavbarContext";
-
-import React from "react";
-import ComparePastPredictionsCard from "@/components/results/ComparePastPredictionsCard";
 import LogExpResultCard from "@/components/results/LogExpResultCard";
 import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
+import OldPredictionsCard from "@/components/results/OldPredictionsTable";
 
-  export default function ResultsPage() {
-  const { isLoaded, isSignedIn, user } = useUser();
+export default function ResultsPage() {
+  const { isLoaded, isSignedIn } = useUser();
   const { theme } = useTheme();
   const { setPageTitle } = useNavbar();
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      redirect("/sign-in");
-    }
-    setPageTitle("results");
+    if (isLoaded && !isSignedIn) redirect("/sign-in");
+    setPageTitle("Results");
   }, [isLoaded, isSignedIn, setPageTitle]);
 
   if (!isLoaded || !isSignedIn) {
@@ -36,10 +33,6 @@ import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
       </main>
     );
   }
-      const predictions = [
-    { drugA: "Cyclocytidine", drugB: "Chlorambucil", score: "90%" },
-    { drugA: "Nilotinib", drugB: "Fludarabine", score: "85%" },
-  ];
 
   return (
     <main
@@ -48,7 +41,7 @@ import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
     >
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 pt-16 pb-10 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full items-stretch min-h-[420px] md:min-h-[460px] lg:min-h-[480px]">
-          <ComparePastPredictionsCard />
+          <OldPredictionsCard />
           <LogExpResultCard />
           <PredictionSummaryCard className="h-full" />
         </div>
@@ -56,4 +49,3 @@ import PredictionSummaryCard from "@/components/results/PredictionSummaryCard";
     </main>
   );
 }
-

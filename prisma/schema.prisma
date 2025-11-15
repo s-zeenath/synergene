@@ -9,16 +9,18 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  clerkUserId String    @unique
-  email       String    @unique
+  id          String   @id @default(uuid())
+  clerkUserId String   @unique
+  email       String   @unique
   name        String?
   imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   predictions Prediction[]
-  reports     Report[]  // Removed experiments
+  reports     Report[] // Removed experiments
+  experiments  Experiment[]
+
 }
 
 model Drug {
@@ -37,8 +39,8 @@ model Drug {
 
 model CellLine {
   id        String   @id @default(cuid())
-  code      String   @unique 
-  tissue    String? 
+  code      String   @unique
+  tissue    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -47,18 +49,18 @@ model CellLine {
 }
 
 model Prediction {
-  id             String      @id @default(cuid())
-  userId         String
-  name           String?    
-  drugAId        String
-  drugBId        String
-  cellLineId     String
-  concentrationA Float       
-  concentrationB Float       
-  synergyScore   Float       
-  confidence     Float       
-  confidenceLevel Confidence 
-  createdAt      DateTime    @default(now())
+  id              String     @id @default(cuid())
+  userId          String
+  name            String?
+  drugAId         String
+  drugBId         String
+  cellLineId      String
+  concentrationA  Float
+  concentrationB  Float
+  synergyScore    Float
+  confidence      Float
+  confidenceLevel Confidence
+  createdAt       DateTime   @default(now())
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   drugA    Drug     @relation("predDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
@@ -68,7 +70,7 @@ model Prediction {
   @@index([userId, createdAt])
   @@index([cellLineId])
   @@index([drugAId, drugBId])
-  @@index([name]) 
+  @@index([name])
 }
 
 enum Confidence {
@@ -84,24 +86,47 @@ model Report {
   fileUrl   String?
   createdAt DateTime @default(now())
 
-  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
 
 model DrugCombination {
-  id          String   @id @default(cuid())
-  drugA       String   
-  drugB       String   
-  cellLine    String   
-  minConcA    Float    
-  maxConcA    Float    
-  minConcB    Float    
-  maxConcB    Float    
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  drugA     String
+  drugB     String
+  cellLine  String
+  minConcA  Float
+  maxConcA  Float
+  minConcB  Float
+  maxConcB  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([drugA, drugB, cellLine])
   @@index([drugA, drugB])
   @@index([cellLine])
+}
+
+enum MetricType {
+  VIABILITY
+  SYNERGY
+}
+
+model Experiment {
+  id               String     @id @default(cuid())
+  userId           String
+  user             User       @relation(fields: [userId], references: [id])
+  drugA            String
+  drugB            String
+  concA            Float
+  concB            Float
+  cellLine         String
+  metricType       MetricType
+  metricValue      Float
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([userId, createdAt])
 }
