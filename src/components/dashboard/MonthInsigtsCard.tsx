@@ -17,15 +17,15 @@ import {
 
 interface MonthInsightsCardProps {
   totalTests: number;
-  synergisticRate?: number;
-  mostPopularCellLine?: string;
+  synergisticTests: number;
+  cellLineStats: Array<{ cellLine: string; occurrences: number }>;
   className?: string;
 }
 
 export default function MonthInsightsCard({
-  totalTests = 4,
-  synergisticRate = 75,
-  mostPopularCellLine = "AF49",
+  totalTests = 0,
+  synergisticTests = 0,
+  cellLineStats = [],
   className = "",
 }: MonthInsightsCardProps) {
   const {
@@ -37,15 +37,14 @@ export default function MonthInsightsCard({
     secondaryBg,
   } = useCardTheme();
 
+  const synergisticRate =
+    totalTests > 0 ? Math.round((synergisticTests / totalTests) * 100) : 0;
+  const mostPopularCellLine =
+    cellLineStats.length > 0 ? cellLineStats[0].cellLine : "N/A";
+
   const pieData = [
     { name: "Synergistic", value: synergisticRate },
     { name: "Non-synergistic", value: 100 - synergisticRate },
-  ];
-
-  const barData = [
-    { cellLine: "AF49", occurrences: 12 },
-    { cellLine: "BF23", occurrences: 8 },
-    { cellLine: "CF12", occurrences: 5 },
   ];
 
   return (
@@ -53,7 +52,7 @@ export default function MonthInsightsCard({
       <p className={`text-2xl md:text-3xl font-semibold mb-6 ${textColor}`}>
         This month, you tested{" "}
         <strong className={highlightColor}>{totalTests}</strong> drug
-        combinations.
+        combination{totalTests !== 1 ? "s" : ""}.
       </p>
 
       <div className="relative mb-6">
@@ -105,7 +104,7 @@ export default function MonthInsightsCard({
             <Button
               variant="primary"
               className="w-full md:w-auto"
-              href="dashboard/all-prediction/page.tsx"
+              href="dashboard/all-prediction"
             >
               View all predictions
             </Button>
@@ -136,7 +135,7 @@ export default function MonthInsightsCard({
         <div className="flex-1 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={barData}
+              data={cellLineStats}
               margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />

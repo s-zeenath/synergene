@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,43 +8,37 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  clerkUserId String   @unique
-  email       String   @unique
-  name        String?
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  predictions Prediction[]
-  reports     Report[] // Removed experiments
-  experiments  Experiment[]
-
+  id             String          @id @default(uuid())
+  clerkUserId    String          @unique
+  email          String          @unique
+  name           String?
+  imageUrl       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  allPredictions AllPrediction[]
+  experiments    Experiment[]
+  predictions    Prediction[]
+  reports        Report[]
 }
 
 model Drug {
-  id         String   @id @default(cuid())
-  name       String   @unique
-  target     String?
-  mechanism  String?
-  associates String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  predictionsA Prediction[] @relation("predDrugA")
-  predictionsB Prediction[] @relation("predDrugB")
-  // Removed experimentsA and experimentsB
+  id              String          @id @default(cuid())
+  name            String          @unique
+  target          String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  allPredictionsA AllPrediction[] @relation("allPredDrugA")
+  allPredictionsB AllPrediction[] @relation("allPredDrugB")
+  predictionsA    Prediction[]    @relation("predDrugA")
+  predictionsB    Prediction[]    @relation("predDrugB")
 }
 
 model CellLine {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  tissue    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  predictions Prediction[]
-  // Removed experiments
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  allPredictions AllPrediction[]
+  predictions    Prediction[]
 }
 
 model Prediction {
@@ -61,22 +54,15 @@ model Prediction {
   confidence      Float
   confidenceLevel Confidence
   createdAt       DateTime   @default(now())
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  drugA    Drug     @relation("predDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
-  drugB    Drug     @relation("predDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
-  cellLine CellLine @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
+  cellLine        CellLine   @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
+  drugA           Drug       @relation("predDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
+  drugB           Drug       @relation("predDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([cellLineId])
   @@index([drugAId, drugBId])
   @@index([name])
-}
-
-enum Confidence {
-  LOW
-  MEDIUM
-  HIGH
 }
 
 model Report {
@@ -85,8 +71,7 @@ model Report {
   title     String
   fileUrl   String?
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -108,25 +93,53 @@ model DrugCombination {
   @@index([cellLine])
 }
 
+model Experiment {
+  id          String     @id @default(cuid())
+  userId      String
+  drugA       String
+  drugB       String
+  concA       Float
+  concB       Float
+  cellLine    String
+  metricType  MetricType
+  metricValue Float
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model AllPrediction {
+  id              String     @id @default(cuid())
+  userId          String
+  drugAId         String
+  drugBId         String
+  cellLineId      String
+  concentrationA  Float
+  concentrationB  Float
+  synergyScore    Float
+  confidence      Float
+  confidenceLevel Confidence
+  createdAt       DateTime   @default(now())
+  cellLine        CellLine   @relation(fields: [cellLineId], references: [id], onDelete: Cascade)
+  drugA           Drug       @relation("allPredDrugA", fields: [drugAId], references: [id], onDelete: Cascade)
+  drugB           Drug       @relation("allPredDrugB", fields: [drugBId], references: [id], onDelete: Cascade)
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([cellLineId])
+  @@index([drugAId, drugBId])
+}
+
+enum Confidence {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 enum MetricType {
   VIABILITY
   SYNERGY
-}
-
-model Experiment {
-  id               String     @id @default(cuid())
-  userId           String
-  user             User       @relation(fields: [userId], references: [id])
-  drugA            String
-  drugB            String
-  concA            Float
-  concB            Float
-  cellLine         String
-  metricType       MetricType
-  metricValue      Float
-  notes            String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-
-  @@index([userId, createdAt])
 }

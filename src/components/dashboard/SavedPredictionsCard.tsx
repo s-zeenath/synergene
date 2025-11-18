@@ -13,12 +13,14 @@ interface SavedPredictionsCardProps {
   count?: number;
   predictions?: Prediction[];
   minHeight?: string;
+  isLoading?: boolean;
 }
 
 export default function SavedPredictionsCard({
   count = 0,
   predictions = [],
   minHeight = "400px",
+  isLoading = false,
 }: SavedPredictionsCardProps) {
   const {
     theme,
@@ -28,6 +30,8 @@ export default function SavedPredictionsCard({
     tableRowBorder,
     emptyText,
   } = useCardTheme();
+
+  const previewPredictions = predictions.slice(0, 2);
 
   return (
     <Card minHeight={minHeight}>
@@ -64,8 +68,18 @@ export default function SavedPredictionsCard({
             </tr>
           </thead>
           <tbody>
-            {predictions.length > 0 ? (
-              predictions.map((p, idx) => (
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  className={`${emptyText} text-center text-xs py-4`}
+                >
+                  Loading predictions...
+                </td>
+              </tr>
+            ) : previewPredictions.length > 0 ? (
+              // Only show previewPredictions (max 2 rows)
+              previewPredictions.map((p, idx) => (
                 <tr
                   key={idx}
                   className={`border-t ${tableRowBorder} last:border-0`}
@@ -87,11 +101,20 @@ export default function SavedPredictionsCard({
             )}
           </tbody>
         </table>
+
+        {/* Show message if there are more predictions than shown */}
+        {predictions.length > 2 && (
+          <div
+            className={`text-xs ${emptyText} text-center py-2 border-t ${tableRowBorder}`}
+          >
+            + {predictions.length - 2} more predictions
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex justify-center">
         <Button
-          href="dashboard/saved-prediction/page.tsx"
+          href="dashboard/saved-prediction"
           variant="secondary"
           className="w-full sm:w-auto"
         >

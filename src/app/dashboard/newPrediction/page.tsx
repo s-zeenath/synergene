@@ -1,7 +1,7 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTheme } from "@/components/ui/ThemeToggle";
 import { useNavbar } from "@/app/contexts/NavbarContext";
 import Card from "@/components/ui/Card";
@@ -9,7 +9,6 @@ import Button from "@/components/ui/Button";
 import { InvertedThemeProvider } from "@/app/contexts/InvertedTabContext";
 
 const INITIAL_DRUG_OPTIONS: string[] = [];
-const INITIAL_CELL_LINE_DATA = {};
 
 export default function NewPredictionPage() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -20,7 +19,6 @@ export default function NewPredictionPage() {
   const [drug2, setDrug2] = useState("");
   const [drug1Concentration, setDrug1Concentration] = useState("");
   const [drug2Concentration, setDrug2Concentration] = useState("");
-  const [cellLineType, setCellLineType] = useState("");
   const [cellLine, setCellLine] = useState("");
   const [showDrug1Dropdown, setShowDrug1Dropdown] = useState(false);
   const [showDrug2Dropdown, setShowDrug2Dropdown] = useState(false);
@@ -43,24 +41,16 @@ export default function NewPredictionPage() {
   const [showSaveOptions, setShowSaveOptions] = useState(false);
   const [predictionName, setPredictionName] = useState("");
   const [predictionCounter, setPredictionCounter] = useState(1);
-  const [savedPredictions, setSavedPredictions] = useState<
-    Array<{
-      id: string;
-      name: string;
-      drugs: string;
-      concentrationA: number;
-      concentrationB: number;
-      cellLine: string;
-      score: number;
-      confidence: number;
-      date: string;
-    }>
-  >([]);
+  const [allPredictions, setAllPredictions] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loadingStates, setLoadingStates] = useState({
+    drug2: false,
+    cellLines: false,
+    concentrations: false,
+  });
 
-  // Move validateConcentrations to the top
-  const validateConcentrations = () => {
+  const validateConcentrations = useCallback(() => {
     if (!concentrationRanges) return false;
 
     const concA = parseFloat(drug1Concentration);
@@ -78,7 +68,7 @@ export default function NewPredictionPage() {
       concB <= concentrationRanges.maxConcB;
 
     return validA && validB;
-  };
+  }, [drug1Concentration, drug2Concentration, concentrationRanges]);
 
   const getConcentrationValidationMessage = () => {
     if (!concentrationRanges) return null;
@@ -127,118 +117,180 @@ export default function NewPredictionPage() {
     try {
       setIsLoading(true);
       const response = await fetch("/api/drugs/available");
+
+      if (!response.ok) {
+        throw new Error(`Failed to load drugs: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
         setAvailableDrugs(data.drugs);
+      } else {
+        throw new Error(data.error || "Failed to load drug data");
       }
     } catch (error) {
       console.error("Error loading drug data:", error);
-      setErrorMessage("Failed to load drug data");
+      setErrorMessage("Failed to load drug data. Please refresh the page.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Debounced drug2 loading
   useEffect(() => {
-    if (drug1) {
-      loadAvailableDrug2Options(drug1);
-    } else {
+    if (!drug1) {
       setAvailableDrug2([]);
       setDrug2("");
+      return;
     }
-  }, [drug1]);
 
-  useEffect(() => {
-    if (drug1 && drug2) {
-      loadAvailableCellLines(drug1, drug2);
-    } else {
-      setAvailableCellLines([]);
-      setCellLine("");
-      setCellLineType("");
-    }
+    const loadDrug2Options = async () => {
+      try {
+        setLoadingStates((prev) => ({ ...prev, drug2: true }));
+        setErrorMessage(null);
+
+        const response = await fetch(
+          `/api/drugs/available-pairs?drug1=${encodeURIComponent(drug1)}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to load drug pairs: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setAvailableDrug2(data.drugs || []);
+          // Reset drug2 if it's no longer available
+          if (drug2 && !data.drugs.includes(drug2)) {
+            setDrug2("");
+          }
+        } else {
+          throw new Error(data.error || "Failed to load compatible drugs");
+        }
+      } catch (error) {
+        console.error("Error loading drug2 options:", error);
+        setAvailableDrug2([]);
+        setDrug2("");
+        if (drug1) {
+          setErrorMessage("Failed to load compatible drugs. Please try again.");
+        }
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, drug2: false }));
+      }
+    };
+
+    const timer = setTimeout(loadDrug2Options, 300);
+    return () => clearTimeout(timer);
   }, [drug1, drug2]);
 
+  // Load cell lines when both drugs are selected
   useEffect(() => {
-    if (drug1 && drug2 && cellLine) {
-      loadConcentrationRanges(drug1, drug2, cellLine);
-    } else {
+    if (!drug1 || !drug2) {
+      setAvailableCellLines([]);
+      setCellLine("");
+      return;
+    }
+
+    const loadCellLines = async () => {
+      try {
+        setLoadingStates((prev) => ({ ...prev, cellLines: true }));
+        setErrorMessage(null);
+
+        const response = await fetch(
+          `/api/cell-lines/available?drug1=${encodeURIComponent(
+            drug1
+          )}&drug2=${encodeURIComponent(drug2)}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to load cell lines: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log("Cell lines response:", data);
+
+        if (data.success) {
+          const cellLines = data.cellLines || [];
+          setAvailableCellLines(cellLines);
+
+          // Reset cell line if it's no longer available
+          if (cellLine && !cellLines.find((cl: any) => cl.value === cellLine)) {
+            setCellLine("");
+          }
+
+          // Auto-select first cell line if only one is available
+          if (cellLines.length === 1 && !cellLine) {
+            setCellLine(cellLines[0].value);
+          }
+        } else {
+          throw new Error(data.error || "No cell lines available");
+        }
+      } catch (error) {
+        console.error("Error loading cell lines:", error);
+        setAvailableCellLines([]);
+        setCellLine("");
+        if (drug1 && drug2) {
+          setErrorMessage(
+            `No cell line data available for ${drug1} + ${drug2} combination`
+          );
+        }
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, cellLines: false }));
+      }
+    };
+
+    const timer = setTimeout(loadCellLines, 300);
+    return () => clearTimeout(timer);
+  }, [drug1, drug2, cellLine]);
+
+  // Load concentration ranges when all three are selected
+  useEffect(() => {
+    if (!drug1 || !drug2 || !cellLine) {
       setConcentrationRanges(null);
       setDrug1Concentration("");
       setDrug2Concentration("");
+      return;
     }
+
+    const loadConcentrations = async () => {
+      try {
+        setLoadingStates((prev) => ({ ...prev, concentrations: true }));
+
+        const response = await fetch(
+          `/api/concentration-ranges?drug1=${encodeURIComponent(
+            drug1
+          )}&drug2=${encodeURIComponent(drug2)}&cellLine=${encodeURIComponent(
+            cellLine
+          )}`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load concentration ranges: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setConcentrationRanges(data.ranges);
+        } else {
+          throw new Error(data.error || "Failed to load concentration ranges");
+        }
+      } catch (error) {
+        console.error("Error loading concentration ranges:", error);
+        setConcentrationRanges(null);
+        setErrorMessage("Failed to load concentration ranges");
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, concentrations: false }));
+      }
+    };
+
+    loadConcentrations();
   }, [drug1, drug2, cellLine]);
-
-  const loadAvailableDrug2Options = async (selectedDrug1: string) => {
-    try {
-      const response = await fetch(
-        `/api/drugs/available-pairs?drug1=${encodeURIComponent(selectedDrug1)}`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setAvailableDrug2(data.drugs);
-        if (drug2 && !data.drugs.includes(drug2)) {
-          setDrug2("");
-        }
-      }
-    } catch (error) {
-      console.error("Error loading drug2 options:", error);
-      setErrorMessage("Failed to load compatible drugs");
-    }
-  };
-
-  const loadAvailableCellLines = async (
-    selectedDrug1: string,
-    selectedDrug2: string
-  ) => {
-    try {
-      const response = await fetch(
-        `/api/cell-lines/available?drug1=${encodeURIComponent(
-          selectedDrug1
-        )}&drug2=${encodeURIComponent(selectedDrug2)}`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setAvailableCellLines(data.cellLines);
-        if (
-          cellLine &&
-          !data.cellLines.find((cl: any) => cl.value === cellLine)
-        ) {
-          setCellLine("");
-          setCellLineType("");
-        }
-      }
-    } catch (error) {
-      console.error("Error loading cell lines:", error);
-      setErrorMessage("Failed to load cell lines");
-    }
-  };
-
-  const loadConcentrationRanges = async (
-    selectedDrug1: string,
-    selectedDrug2: string,
-    selectedCellLine: string
-  ) => {
-    try {
-      const response = await fetch(
-        `/api/concentration-ranges?drug1=${encodeURIComponent(
-          selectedDrug1
-        )}&drug2=${encodeURIComponent(
-          selectedDrug2
-        )}&cellLine=${encodeURIComponent(selectedCellLine)}`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setConcentrationRanges(data.ranges);
-      }
-    } catch (error) {
-      console.error("Error loading concentration ranges:", error);
-      setErrorMessage("Failed to load concentration ranges");
-    }
-  };
 
   const filteredDrugs1 = availableDrugs.filter((drug) =>
     drug.toLowerCase().includes(drug1.toLowerCase())
@@ -251,16 +303,74 @@ export default function NewPredictionPage() {
   const handleDrug1Select = (selectedDrug: string) => {
     setDrug1(selectedDrug);
     setShowDrug1Dropdown(false);
+    // Reset dependent fields
+    setDrug2("");
+    setCellLine("");
+    setDrug1Concentration("");
+    setDrug2Concentration("");
+    setSynergyScore(null);
   };
 
   const handleDrug2Select = (selectedDrug: string) => {
     setDrug2(selectedDrug);
     setShowDrug2Dropdown(false);
+    // Reset dependent fields
+    setCellLine("");
+    setDrug1Concentration("");
+    setDrug2Concentration("");
+    setSynergyScore(null);
   };
 
-  const handleCellLineTypeChange = (type: string) => {
-    setCellLineType(type);
-    setCellLine("");
+  // Save to all predictions (without name) - extracted as separate function
+  const saveToAllPredictions = async (score: number) => {
+    try {
+      const saveResponse = await fetch("/api/predictions/all", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          drug1,
+          drug2,
+          drug1Concentration: parseFloat(drug1Concentration),
+          drug2Concentration: parseFloat(drug2Concentration),
+          cellLine,
+          synergyScore: score,
+          confidenceScore: 65,
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        let errorText = "Failed to save prediction to history";
+        try {
+          const errorData = await saveResponse.json();
+          errorText = errorData.error || errorData.message || errorText;
+        } catch (e) {
+          errorText = saveResponse.statusText || errorText;
+        }
+        throw new Error(errorText);
+      }
+
+      const savedData = await saveResponse.json();
+
+      // Update local state with the saved prediction
+      const newPrediction = {
+        id: savedData.prediction.id,
+        drugs: `${drug1} + ${drug2}`,
+        concentrationA: parseFloat(drug1Concentration),
+        concentrationB: parseFloat(drug2Concentration),
+        cellLine: cellLine,
+        score: score,
+        confidence: 65,
+        date: new Date().toLocaleDateString(),
+      };
+
+      setAllPredictions((prev) => [newPrediction, ...prev]);
+      return true;
+    } catch (error) {
+      console.error("Error saving to all predictions:", error);
+      throw error;
+    }
   };
 
   const calculateSynergyScore = async () => {
@@ -272,11 +382,34 @@ export default function NewPredictionPage() {
     setIsCalculating(true);
     setErrorMessage(null);
 
-    setTimeout(() => {
-      const score = 87;
-      setSynergyScore(score);
+    try {
+      // Calculate score (mock calculation)
+      setTimeout(async () => {
+        const score = 87;
+        setSynergyScore(score);
+
+        // ALWAYS save to all predictions when score is calculated
+        try {
+          await saveToAllPredictions(score);
+          setSuccessMessage("Synergy score calculated and saved to history!");
+        } catch (error) {
+          console.error("Error saving to all predictions:", error);
+          // Don't show error for all predictions save - just log it
+          // The score calculation was still successful
+          setSuccessMessage("Synergy score calculated!");
+        } finally {
+          setIsCalculating(false);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error calculating synergy score:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Error calculating synergy score"
+      );
       setIsCalculating(false);
-    }, 2000);
+    }
   };
 
   const generateReport = () => {
@@ -304,7 +437,8 @@ export default function NewPredictionPage() {
     try {
       const finalName = customName || `PRED_${predictionCounter}`;
 
-      const response = await fetch("/api/predictions/save", {
+      // Save to saved predictions (with name)
+      const response = await fetch("/api/predictions/saved", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -321,31 +455,23 @@ export default function NewPredictionPage() {
         }),
       });
 
-      // Check if response is OK before parsing JSON
       if (!response.ok) {
-        // Try to get error message from response, fallback to status text
         let errorMessage = response.statusText || "Failed to save prediction";
-
         try {
-          // Only try to parse as JSON if there's content
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
             const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
+            errorMessage = errorData.error || errorData.message || errorMessage;
           } else {
-            // If not JSON, get text instead
             const text = await response.text();
             if (text) errorMessage = text;
           }
         } catch (parseError) {
           console.error("Error parsing error response:", parseError);
-          // If JSON parsing fails, use the original error message
         }
-
         throw new Error(errorMessage);
       }
 
-      // Now safely parse the successful response
       const data = await response.json();
 
       // Update local state
@@ -357,20 +483,6 @@ export default function NewPredictionPage() {
         );
       }
 
-      // After successful response
-      const newPrediction = {
-        id: data.prediction.id,
-        name: data.prediction.name,
-        drugs: data.prediction.drugs, // This should now be available
-        concentrationA: data.prediction.concentrationA,
-        concentrationB: data.prediction.concentrationB,
-        cellLine: data.prediction.cellLine,
-        score: data.prediction.synergyScore, // Note: using synergyScore from API
-        confidence: data.prediction.confidence,
-        date: data.prediction.date,
-      };
-
-      setSavedPredictions((prev) => [...prev, newPrediction]);
       setShowSaveOptions(false);
       setPredictionName("");
       setSuccessMessage(`Prediction saved as: ${finalName}`);
@@ -456,7 +568,7 @@ export default function NewPredictionPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {/* Left Card - Keep exactly as is */}
+          {/* Left Card */}
           <div>
             <Card
               title="Make New Prediction"
@@ -464,7 +576,7 @@ export default function NewPredictionPage() {
               className="shadow-lg"
             >
               <div className="space-y-8">
-                {/* Drug 1 - Stacked vertically */}
+                {/* Drug 1 */}
                 <div className="relative">
                   <label className="block text-base font-semibold mb-3">
                     Drug 1
@@ -503,7 +615,7 @@ export default function NewPredictionPage() {
                   )}
                 </div>
 
-                {/* Drug 2 - Stacked vertically */}
+                {/* Drug 2 */}
                 <div className="relative">
                   <label className="block text-base font-semibold mb-3">
                     Drug 2
@@ -540,6 +652,11 @@ export default function NewPredictionPage() {
                       ))}
                     </div>
                   )}
+                  {loadingStates.drug2 && (
+                    <p className="text-blue-500 text-sm mt-1">
+                      Loading compatible drugs...
+                    </p>
+                  )}
                   {drug2 && !availableDrug2.includes(drug2) && (
                     <p className="text-red-500 text-sm mt-1">
                       This drug combination is not available in database
@@ -552,6 +669,7 @@ export default function NewPredictionPage() {
                   )}
                 </div>
 
+                {/* Cell Line */}
                 <div>
                   <label className="block text-base font-semibold mb-3">
                     Cell Line
@@ -560,13 +678,18 @@ export default function NewPredictionPage() {
                     value={cellLine}
                     onChange={(e) => setCellLine(e.target.value)}
                     disabled={
-                      !drug1 || !drug2 || availableCellLines.length === 0
+                      !drug1 ||
+                      !drug2 ||
+                      availableCellLines.length === 0 ||
+                      loadingStates.cellLines
                     }
                     className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-base"
                   >
                     <option value="">
                       {!drug1 || !drug2
                         ? "Select both drugs first"
+                        : loadingStates.cellLines
+                        ? "Loading cell lines..."
                         : availableCellLines.length === 0
                         ? "No cell lines available for this combination"
                         : "Select Cell Line"}
@@ -577,12 +700,20 @@ export default function NewPredictionPage() {
                       </option>
                     ))}
                   </select>
-                  {drug1 && drug2 && availableCellLines.length === 0 && (
-                    <p className="text-red-500 text-sm mt-1">
-                      No cell line data available for {drug1} + {drug2}{" "}
-                      combination
+                  {loadingStates.cellLines && (
+                    <p className="text-blue-500 text-sm mt-1">
+                      Loading cell lines...
                     </p>
                   )}
+                  {drug1 &&
+                    drug2 &&
+                    availableCellLines.length === 0 &&
+                    !loadingStates.cellLines && (
+                      <p className="text-red-500 text-sm mt-1">
+                        No cell line data available for {drug1} + {drug2}{" "}
+                        combination
+                      </p>
+                    )}
                 </div>
 
                 {concentrationRanges && (
@@ -592,6 +723,12 @@ export default function NewPredictionPage() {
                     </p>
                     {getConcentrationValidationMessage()}
                   </div>
+                )}
+
+                {loadingStates.concentrations && concentrationRanges && (
+                  <p className="text-blue-500 text-sm">
+                    Updating concentration ranges...
+                  </p>
                 )}
 
                 <div>

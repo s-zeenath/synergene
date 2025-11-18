@@ -18,13 +18,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ predictions: [] });
     }
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const allPredictions = await db.allPrediction.findMany({
+    const savedPredictions = await db.prediction.findMany({
       where: {
-        userId: dbUser.id,
-        createdAt: { gte: thirtyDaysAgo }
+        userId: dbUser.id
       },
       include: {
         drugA: true,
@@ -34,12 +30,13 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
 
-    const formattedPredictions = allPredictions.map(pred => ({
+    const formattedPredictions = savedPredictions.map(pred => ({
       id: pred.id,
+      name: pred.name,
       drugs: `${pred.drugA.name} + ${pred.drugB.name}`,
       concentrationA: pred.concentrationA,
       concentrationB: pred.concentrationB,
-      cellLine: pred.cellLine.id, // CHANGED: Use id instead of code
+      cellLine: pred.cellLine.id,
       score: pred.synergyScore,
       confidence: pred.confidence,
       confidenceLevel: pred.confidenceLevel,
@@ -49,7 +46,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ predictions: formattedPredictions });
 
   } catch (error) {
-    console.error('Error fetching all predictions:', error);
+    console.error('Error fetching saved predictions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -59,7 +56,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/predictions/all called');
+    console.log('POST /api/predictions/saved called');
     
     const { userId } = await auth();
     console.log('User ID:', userId);
@@ -82,6 +79,7 @@ export async function POST(request: NextRequest) {
     console.log('Request body:', body);
     
     const {
+      name,
       drug1,
       drug2,
       drug1Concentration,
@@ -91,7 +89,7 @@ export async function POST(request: NextRequest) {
       confidenceScore
     } = body;
 
-    if (!drug1 || !drug2 || !cellLine) {
+    if (!name || !drug1 || !drug2 || !cellLine) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -109,6 +107,7 @@ export async function POST(request: NextRequest) {
       drugA = await db.drug.create({
         data: {
           name: drug1
+          // target is optional, so we don't need to provide it
         }
       });
       console.log('Created drug A:', drugA.name);
@@ -118,6 +117,7 @@ export async function POST(request: NextRequest) {
       drugB = await db.drug.create({
         data: {
           name: drug2
+          // target is optional, so we don't need to provide it
         }
       });
       console.log('Created drug B:', drugB.name);
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Final drugs:', { drugA: drugA.name, drugB: drugB.name });
 
-    // Find or create cell line
+    // Find or create cell line (only basic fields required)
     let cellLineRecord = await db.cellLine.findFirst({
       where: { id: cellLine }
     });
@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
       cellLineRecord = await db.cellLine.create({
         data: {
           id: cellLine
+          // Only code field is required, others are automatically generated
         }
       });
       console.log('Created cell line:', cellLineRecord.id);
@@ -148,10 +149,11 @@ export async function POST(request: NextRequest) {
       return 'LOW';
     };
 
-    // Create all prediction (without name)
-    const prediction = await db.allPrediction.create({
+    // Create saved prediction (with name)
+    const prediction = await db.prediction.create({
       data: {
         userId: dbUser.id,
+        name: name,
         drugAId: drugA.id,
         drugBId: drugB.id,
         cellLineId: cellLineRecord.id,
@@ -168,14 +170,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Created prediction:', prediction.id);
+    console.log('Created saved prediction:', prediction.id);
 
     const formattedPrediction = {
       id: prediction.id,
+      name: prediction.name,
       drugs: `${prediction.drugA.name} + ${prediction.drugB.name}`,
       concentrationA: prediction.concentrationA,
       concentrationB: prediction.concentrationB,
-      cellLine: prediction.cellLine.id, // CHANGED: Use id instead of code
+      cellLine: prediction.cellLine.id,
       score: prediction.synergyScore,
       confidence: prediction.confidence,
       confidenceLevel: prediction.confidenceLevel,
@@ -188,7 +191,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating all prediction:', error);
+    console.error('Error creating saved prediction:', error);
     return NextResponse.json(
       { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
