@@ -8,7 +8,7 @@ import LookupDrugCard from "@/components/dashboard/LookupDrugCard";
 import NewPredictionCard from "@/components/dashboard/NewPrediction";
 import MonthInsightsCard from "@/components/dashboard/MonthInsigtsCard";
 import PopularDrugsCard from "@/components/dashboard/PopularDrugsCard";
-import ReportCard from "@/components/dashboard/ReportCard";
+import ExperimentsCard from "@/components/dashboard/ExperimentsCard";
 import { useNavbar } from "../contexts/NavbarContext";
 
 interface AllPrediction {
@@ -125,6 +125,26 @@ export default function DashboardPage() {
 
   const popularDrugs = calculatePopularDrugs(allPredictions);
 
+  // Get latest report date from predictions or use current date
+  const getLatestReportDate = () => {
+    if (allPredictions.length === 0) {
+      return "No reports yet";
+    }
+
+    // Find the most recent prediction date
+    const latestDate = allPredictions.reduce((latest, pred) => {
+      const predDate = new Date(pred.date);
+      return predDate > latest ? predDate : latest;
+    }, new Date(0)); // Start with earliest possible date
+
+    // Format as DD/MM/YY
+    return latestDate.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    });
+  };
+
   if (!isLoaded || !isSignedIn) {
     return (
       <main
@@ -163,11 +183,12 @@ export default function DashboardPage() {
             totalTests={totalTests}
             synergisticTests={synergisticTests}
             cellLineStats={cellLineStats}
+            latestReportDate={getLatestReportDate()}
           />
 
           <div className="flex flex-col gap-4">
             <PopularDrugsCard drugs={popularDrugs} isLoading={isLoading} />
-            <ReportCard latestReportDate="24/3/25" />
+            <ExperimentsCard />
           </div>
         </div>
       </div>

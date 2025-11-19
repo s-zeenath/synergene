@@ -13,13 +13,15 @@ export default function NewPredictionCard() {
         href="dashboard/newPrediction"
         className="flex-1 flex items-center justify-center w-full"
       >
-        <Image
-          src="/add.png"
-          alt="Make New Prediction"
-          width={160}
-          height={160}
-          className="object-contain cursor-pointer hover:opacity-90 transition"
-        />
+        <div className="relative group">
+          <Image
+            src="/add.png"
+            alt="Make New Prediction"
+            width={160}
+            height={160}
+            className="object-contain cursor-pointer group-hover:scale-110 transition-transform duration-300"
+          />
+        </div>
       </Link>
 
       <h3 className={`font-semibold text-lg mt-4 ${textColor}`}>

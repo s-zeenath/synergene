@@ -34,7 +34,7 @@ export default function ExperimentalLogsPage() {
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) redirect("/sign-in");
-    setPageTitle("Experimental Logs");
+    setPageTitle("experimental archive");
   }, [isLoaded, isSignedIn, setPageTitle]);
 
   const colors = useMemo(
@@ -144,7 +144,9 @@ export default function ExperimentalLogsPage() {
     if (!confirm("Delete this experiment?")) return;
     try {
       setDeletingId(id);
-      const res = await fetch(`/api/experiments/delete?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/experiments/delete?id=${id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) throw new Error(await safeMsg(res));
       await load();
     } catch (err: any) {
@@ -161,7 +163,9 @@ export default function ExperimentalLogsPage() {
         style={theme === "dark" ? { backgroundColor: "#5175b0" } : {}}
       >
         <div className="px-6 md:px-12 lg:px-24 py-6 relative z-10">
-          <div className="flex justify-center items-center h-64 text-lg">Loading...</div>
+          <div className="flex justify-center items-center h-64 text-lg">
+            Loading...
+          </div>
         </div>
       </main>
     );
@@ -194,26 +198,32 @@ export default function ExperimentalLogsPage() {
             <div className="overflow-hidden rounded-2xl ring-1 ring-black/5 dark:ring-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm min-w-[1100px]">
-                  <thead className={`${colors.thead} sticky top-0 z-10 text-xs uppercase tracking-wide`}>
-  <tr className="text-center">
-    {[
-      "Date",
-      "Drug A",
-      "Drug B",
-      <span key="concA">Conc A (<span className="normal-case">µM</span>)</span>,
-      <span key="concB">Conc B (<span className="normal-case">µM</span>)</span>,
-      "Cell Line",
-      "Metric",
-      "Score",
-      "Notes",
-      "Actions",
-    ].map((h, i) => (
-      <th key={i} className="px-5 py-3 whitespace-nowrap">
-        {h}
-      </th>
-    ))}
-  </tr>
-</thead>
+                  <thead
+                    className={`${colors.thead} sticky top-0 z-10 text-xs uppercase tracking-wide`}
+                  >
+                    <tr className="text-center">
+                      {[
+                        "Date",
+                        "Drug A",
+                        "Drug B",
+                        <span key="concA">
+                          Conc A (<span className="normal-case">µM</span>)
+                        </span>,
+                        <span key="concB">
+                          Conc B (<span className="normal-case">µM</span>)
+                        </span>,
+                        "Cell Line",
+                        "Metric",
+                        "Score",
+                        "Notes",
+                        "Actions",
+                      ].map((h, i) => (
+                        <th key={i} className="px-5 py-3 whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
 
                   <tbody>
                     {logs.map((log, idx) => (
@@ -223,7 +233,9 @@ export default function ExperimentalLogsPage() {
                           idx % 2 === 0
                             ? "bg-black/[.01] dark:bg-white/[.02]"
                             : "bg-transparent"
-                        } border-t ${colors.border} hover:bg-black/[.03] dark:hover:bg-white/[.04] transition-colors`}
+                        } border-t ${
+                          colors.border
+                        } hover:bg-black/[.03] dark:hover:bg-white/[.04] transition-colors`}
                       >
                         <td className="px-5 py-3 text-center align-middle whitespace-nowrap">
                           {formatDate(log.date)}
@@ -288,14 +300,29 @@ export default function ExperimentalLogsPage() {
       </div>
 
       {creating && (
-        <Modal onClose={() => !saving && setCreating(false)} className={colors.modal}>
+        <Modal
+          onClose={() => !saving && setCreating(false)}
+          className={colors.modal}
+        >
           <h2 className="text-lg font-semibold mb-4">Add Experiment</h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <GridTwo>
               <InputL label="Drug A" name="drugA" required />
               <InputL label="Drug B" name="drugB" required />
-              <InputL label="Conc A (μM)" name="concA" type="number" step="0.1" required />
-              <InputL label="Conc B (μM)" name="concB" type="number" step="0.1" required />
+              <InputL
+                label="Conc A (μM)"
+                name="concA"
+                type="number"
+                step="0.1"
+                required
+              />
+              <InputL
+                label="Conc B (μM)"
+                name="concB"
+                type="number"
+                step="0.1"
+                required
+              />
               <InputL label="Cell Line" name="cellLine" required />
               <label className="text-sm">
                 Metric Type
@@ -308,7 +335,13 @@ export default function ExperimentalLogsPage() {
                   <option value="VIABILITY">VIABILITY</option>
                 </select>
               </label>
-              <InputL label="Score" name="metricValue" type="number" step="0.1" required />
+              <InputL
+                label="Score"
+                name="metricValue"
+                type="number"
+                step="0.1"
+                required
+              />
             </GridTwo>
             <label className="text-sm block">
               Notes
@@ -331,12 +364,25 @@ export default function ExperimentalLogsPage() {
       )}
 
       {editing && (
-        <Modal onClose={() => !saving && setEditing(null)} className={colors.modal}>
+        <Modal
+          onClose={() => !saving && setEditing(null)}
+          className={colors.modal}
+        >
           <h2 className="text-lg font-semibold mb-4">Edit Experimental Log</h2>
           <form onSubmit={handleSaveEdit} className="space-y-4">
             <GridTwo>
-              <InputL label="Drug A" name="drugA" defaultValue={editing.drugA} required />
-              <InputL label="Drug B" name="drugB" defaultValue={editing.drugB} required />
+              <InputL
+                label="Drug A"
+                name="drugA"
+                defaultValue={editing.drugA}
+                required
+              />
+              <InputL
+                label="Drug B"
+                name="drugB"
+                defaultValue={editing.drugB}
+                required
+              />
               <InputL
                 label="Conc A (μM)"
                 name="concA"
@@ -351,7 +397,12 @@ export default function ExperimentalLogsPage() {
                 step="0.1"
                 defaultValue={editing.concB ?? undefined}
               />
-              <InputL label="Cell Line" name="cellLine" defaultValue={editing.cellLine} required />
+              <InputL
+                label="Cell Line"
+                name="cellLine"
+                defaultValue={editing.cellLine}
+                required
+              />
               <label className="text-sm">
                 Metric Type
                 <select
@@ -396,7 +447,9 @@ export default function ExperimentalLogsPage() {
 }
 
 function GridTwo({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>
+  );
 }
 function RightRow({ children }: { children: React.ReactNode }) {
   return <div className="flex justify-end gap-2 pt-2">{children}</div>;
@@ -448,7 +501,9 @@ function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
-        className={`relative w-full max-w-2xl mx-auto rounded-2xl p-6 shadow-xl ${className ?? ""}`}
+        className={`relative w-full max-w-2xl mx-auto rounded-2xl p-6 shadow-xl ${
+          className ?? ""
+        }`}
       >
         <div className="absolute top-3 right-3">
           <button
@@ -513,7 +568,9 @@ function MetricBadge({ type }: { type: string }) {
       : "bg-pink-700 text-pink-50 ring-1 ring-pink-700";
 
   return (
-    <span className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors ${cls}`}>
+    <span
+      className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors ${cls}`}
+    >
       {t || "—"}
     </span>
   );

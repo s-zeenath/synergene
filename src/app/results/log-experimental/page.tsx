@@ -18,7 +18,7 @@ export default function LogExperimentalPage() {
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) redirect("/sign-in");
-    setPageTitle("Log Experimental");
+    setPageTitle("lab notebook");
   }, [isLoaded, isSignedIn, setPageTitle]);
 
   if (!isLoaded || !isSignedIn) {
@@ -44,7 +44,9 @@ export default function LogExperimentalPage() {
       <div className="px-6 md:px-12 lg:px-24 pt-16 pb-10 relative z-10">
         <div
           className={`max-w-4xl mx-auto rounded-2xl shadow-xl p-8 transition-colors duration-300 ${
-            theme === "light" ? "bg-white text-gray-900" : "bg-[#1b2b4a] text-white"
+            theme === "light"
+              ? "bg-white text-gray-900"
+              : "bg-[#1b2b4a] text-white"
           }`}
         >
           <h1 className="text-center text-3xl font-semibold mb-8">
@@ -86,7 +88,8 @@ export default function LogExperimentalPage() {
                   body: JSON.stringify(payload),
                 });
                 const data = await res.json();
-                if (!res.ok || !data?.success) throw new Error(data?.error || res.statusText);
+                if (!res.ok || !data?.success)
+                  throw new Error(data?.error || res.statusText);
                 form.reset();
                 router.replace("/results/experimental-logs");
               } catch (err: any) {
@@ -102,7 +105,8 @@ export default function LogExperimentalPage() {
             ].map((f) => (
               <div key={f.name}>
                 <label className="block mb-2 text-sm font-medium">
-                  {f.label} {f.required && <span className="text-red-500">*</span>}
+                  {f.label}{" "}
+                  {f.required && <span className="text-red-500">*</span>}
                 </label>
                 <input
                   name={f.name}
@@ -189,7 +193,9 @@ export default function LogExperimentalPage() {
             </div>
 
             <div>
-              <label className="block mb-2 text-sm font-medium">Notes (optional)</label>
+              <label className="block mb-2 text-sm font-medium">
+                Notes (optional)
+              </label>
               <textarea
                 name="notes"
                 placeholder="Enter notes"

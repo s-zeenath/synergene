@@ -47,7 +47,7 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         {mounted && isSignedIn && (
           <>
-            {["About", "Profile", "Dashboard", "Results"].map((item) => (
+            {["About", "Profile", "Dashboard"].map((item) => (
               <Link
                 key={item}
                 href={`/${item.toLowerCase()}`}

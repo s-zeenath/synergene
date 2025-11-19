@@ -2,23 +2,13 @@
 import React from "react";
 import Card, { useCardTheme } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 interface MonthInsightsCardProps {
   totalTests: number;
   synergisticTests: number;
   cellLineStats: Array<{ cellLine: string; occurrences: number }>;
+  latestReportDate: string;
   className?: string;
 }
 
@@ -26,6 +16,7 @@ export default function MonthInsightsCard({
   totalTests = 0,
   synergisticTests = 0,
   cellLineStats = [],
+  latestReportDate,
   className = "",
 }: MonthInsightsCardProps) {
   const {
@@ -48,7 +39,7 @@ export default function MonthInsightsCard({
   ];
 
   return (
-    <Card className={`flex flex-col p-4 ${className} max-h-[730px]`}>
+    <Card minHeight="755px" className={`flex flex-col p-4 ${className}`}>
       <p className={`text-2xl md:text-3xl font-semibold mb-6 ${textColor}`}>
         This month, you tested{" "}
         <strong className={highlightColor}>{totalTests}</strong> drug
@@ -113,38 +104,62 @@ export default function MonthInsightsCard({
       </div>
 
       <p
-        className={`text-2xl md:text-3xl font-semibold mb-4 text-left ${textColor}`}
+        className={`text-2xl md:text-3xl font-semibold mb-2 text-left ${textColor}`}
       >
         The most popular cell line over the last month was{" "}
         <strong className={highlightColor}>{mostPopularCellLine}</strong>.
       </p>
 
-      <div className="flex flex-col md:flex-row gap-4 items-start">
-        <div className="flex flex-col gap-2 md:w-48 mt-6">
-          <Button variant="secondary" className="w-full">
-            Recommend Cell Lines
-          </Button>
-          <Button variant="secondary" className="w-full">
-            View Cell Line by Disease
-          </Button>
-          <Button variant="secondary" className="w-full">
-            Adjust Timeframe
-          </Button>
-        </div>
+      {/* Report Section - Updated Layout */}
+      <div className="relative mt-4">
+        <div
+          className={`absolute inset-0 rounded-xl shadow-md ${secondaryBg}`}
+        ></div>
 
-        <div className="flex-1 h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={cellLineStats}
-              margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+        <div
+          className="relative flex items-center justify-between gap-4 p-4"
+          style={{ minHeight: "140px" }}
+        >
+          {/* Left side - Date information */}
+          <div className="flex-1">
+            <p
+              className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="cellLine" stroke={chartStrokeColor} />
-              <YAxis stroke={chartStrokeColor} />
-              <Tooltip />
-              <Bar dataKey="occurrences" fill={chartColors[0]} />
-            </BarChart>
-          </ResponsiveContainer>
+              Latest report saved on:
+            </p>
+            <p
+              className={`text-lg sm:text-xl md:text-2xl font-bold mt-1 ${highlightColor}`}
+            >
+              {latestReportDate}
+            </p>
+          </div>
+
+          {/* Middle - Report image */}
+          <div className="flex-1 flex justify-center">
+            <img
+              src="/report.png"
+              alt="report"
+              className="h-48 w-auto object-contain"
+            />
+          </div>
+
+          {/* Right side - Buttons */}
+          <div className="flex-1 flex flex-col gap-3 max-w-[150px]">
+            <Button
+              href="/view-reports"
+              variant="secondary"
+              className="w-full py-2 text-base text-center"
+            >
+              View reports
+            </Button>
+            <Button
+              href="/generate-report"
+              variant="secondary"
+              className="w-full py-2 text-base text-center"
+            >
+              Generate report
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

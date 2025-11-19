@@ -116,7 +116,7 @@ export default function SavedPredictionsCard({
         <Button
           href="dashboard/saved-prediction"
           variant="secondary"
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto hover:scale-105 transition-transform duration-300"
         >
           View saved predictions
         </Button>
