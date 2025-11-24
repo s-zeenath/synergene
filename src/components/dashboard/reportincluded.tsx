@@ -46,23 +46,22 @@ export default function MonthInsightsCard({
         combination{totalTests !== 1 ? "s" : ""}.
       </p>
 
-      <div className="relative mb-6 flex-1">
+      <div className="relative mb-6">
         <div
           className={`absolute inset-0 rounded-2xl shadow-md ${secondaryBg}`}
         ></div>
 
         <div
-          className="relative flex flex-col md:flex-row items-center justify-center gap-8 p-8 h-full"
-          style={{ minHeight: "200px" }}
+          className="relative flex flex-col md:flex-row items-center gap-6 p-6"
+          style={{ minHeight: "160px" }}
         >
-          {/* Pie Chart - Made larger */}
-          <div className="w-56 h-56 flex-shrink-0">
+          <div className="w-48 h-48 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
-                  innerRadius={70}
-                  outerRadius={95}
+                  innerRadius={60}
+                  outerRadius={80}
                   paddingAngle={3}
                   dataKey="value"
                 >
@@ -86,15 +85,16 @@ export default function MonthInsightsCard({
             </ResponsiveContainer>
           </div>
 
-          {/* Text and Button - Made larger and better centered */}
-          <div className="flex flex-col flex-1 items-center md:items-center justify-center h-full text-center">
-            <p className={`text-3xl md:text-4xl font-bold mb-6 ${textColor}`}>
+          <div className="flex flex-col flex-1 items-center md:items-end justify-center h-full">
+            <p
+              className={`text-2xl md:text-3xl font-bold mb-4 text-right ${textColor}`}
+            >
               <strong className={highlightColor}>{synergisticRate}%</strong> of
               these were synergistic
             </p>
             <Button
               variant="primary"
-              className="w-full md:w-auto text-lg py-3 px-6"
+              className="w-full md:w-auto"
               href="dashboard/all-prediction"
             >
               View all predictions
@@ -103,45 +103,62 @@ export default function MonthInsightsCard({
         </div>
       </div>
 
-      {/* Bottom section with two separate cards */}
-      <div className="flex flex-col md:flex-row gap-4 mt-4">
-        {/* Left card - Most popular cell line with fire on top */}
-        <div className="flex-1 relative">
-          <div
-            className={`absolute inset-0 rounded-xl shadow-md ${secondaryBg}`}
-          ></div>
-          <div className="relative p-6 flex flex-col items-center justify-center h-full text-center">
-            <img
-              src="/fire.png"
-              alt="Popular"
-              className="h-20 w-20 object-contain mb-4"
-            />
-            <p className={`text-xl md:text-2xl font-semibold ${textColor}`}>
-              The most popular cell line over the last month was{" "}
-              <strong className={highlightColor}>{mostPopularCellLine}</strong>.
-            </p>
-          </div>
-        </div>
+      <p
+        className={`text-2xl md:text-3xl font-semibold mb-2 text-left ${textColor}`}
+      >
+        The most popular cell line over the last month was{" "}
+        <strong className={highlightColor}>{mostPopularCellLine}</strong>.
+      </p>
 
-        {/* Right card - Last predicted saved on with calendar */}
-        <div className="flex-1 relative">
-          <div
-            className={`absolute inset-0 rounded-xl shadow-md ${secondaryBg}`}
-          ></div>
-          <div className="relative p-6 flex flex-col items-center justify-center h-full text-center">
-            <img
-              src="/calendar.png"
-              alt="Calendar"
-              className="h-20 w-20 object-contain mb-4"
-            />
-            <p className={`text-xl md:text-2xl font-semibold ${textColor}`}>
-              Last predicted saved on:
+      {/* Report Section - Updated Layout */}
+      <div className="relative mt-4">
+        <div
+          className={`absolute inset-0 rounded-xl shadow-md ${secondaryBg}`}
+        ></div>
+
+        <div
+          className="relative flex items-center justify-between gap-4 p-4"
+          style={{ minHeight: "140px" }}
+        >
+          {/* Left side - Date information */}
+          <div className="flex-1">
+            <p
+              className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}
+            >
+              Latest report saved on:
             </p>
             <p
-              className={`text-xl md:text-2xl font-bold mt-2 ${highlightColor}`}
+              className={`text-lg sm:text-xl md:text-2xl font-bold mt-1 ${highlightColor}`}
             >
               {latestReportDate}
             </p>
+          </div>
+
+          {/* Middle - Report image */}
+          <div className="flex-1 flex justify-center">
+            <img
+              src="/report.png"
+              alt="report"
+              className="h-48 w-auto object-contain"
+            />
+          </div>
+
+          {/* Right side - Buttons */}
+          <div className="flex-1 flex flex-col gap-3 max-w-[150px]">
+            <Button
+              href="/view-reports"
+              variant="secondary"
+              className="w-full py-2 text-base text-center"
+            >
+              View reports
+            </Button>
+            <Button
+              href="/generate-report"
+              variant="secondary"
+              className="w-full py-2 text-base text-center"
+            >
+              Generate report
+            </Button>
           </div>
         </div>
       </div>

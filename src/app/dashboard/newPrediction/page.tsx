@@ -336,7 +336,7 @@ export default function NewPredictionPage() {
           drug2Concentration: parseFloat(drug2Concentration),
           cellLine,
           synergyScore: score,
-          confidenceScore: 65,
+          confidenceScore: 77,
         }),
       });
 
@@ -361,7 +361,7 @@ export default function NewPredictionPage() {
         concentrationB: parseFloat(drug2Concentration),
         cellLine: cellLine,
         score: score,
-        confidence: 65,
+        confidence: 77,
         date: new Date().toLocaleDateString(),
       };
 
@@ -385,7 +385,7 @@ export default function NewPredictionPage() {
     try {
       // Calculate score (mock calculation)
       setTimeout(async () => {
-        const score = 87;
+        const score = 82;
         setSynergyScore(score);
 
         // ALWAYS save to all predictions when score is calculated
@@ -410,15 +410,6 @@ export default function NewPredictionPage() {
       );
       setIsCalculating(false);
     }
-  };
-
-  const generateReport = () => {
-    if (!synergyScore) {
-      setErrorMessage("Please calculate synergy score first");
-      return;
-    }
-    setSuccessMessage("Generating report...");
-    // Your report generation logic here
   };
 
   const handleSavePrediction = () => {
@@ -451,7 +442,7 @@ export default function NewPredictionPage() {
           drug2Concentration: parseFloat(drug2Concentration),
           cellLine,
           synergyScore,
-          confidenceScore: 65,
+          confidenceScore: 77,
         }),
       });
 
@@ -801,7 +792,7 @@ export default function NewPredictionPage() {
                           {getSynergyType()}
                         </div>
                         <div className="text-xl text-gray-500 dark:text-gray-400">
-                          at a confidence level of 65%
+                          at a confidence level of 77%
                         </div>
                       </>
                     ) : (
@@ -874,14 +865,7 @@ export default function NewPredictionPage() {
                               ? "Calculating..."
                               : "Generate Score"}
                           </Button>
-                          <Button
-                            variant="secondary"
-                            className="w-full py-5 text-lg font-semibold"
-                            onClick={generateReport}
-                            disabled={!synergyScore}
-                          >
-                            Generate Report
-                          </Button>
+                          {/* Generate Report button removed */}
                         </div>
 
                         <div className="space-y-4">

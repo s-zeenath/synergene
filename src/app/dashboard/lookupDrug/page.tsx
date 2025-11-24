@@ -32,11 +32,11 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
     <div
       className={`rounded-2xl shadow-lg p-6 transition-all duration-300 animate-in fade-in-50 ${
         isLight
-          ? "bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200"
-          : "bg-gradient-to-br from-blue-900/50 to-indigo-900 border border-blue-700"
+          ? "bg-white border border-blue-200"
+          : "bg-gray-900 border border-blue-700"
       }`}
     >
-      <h2 className="text-2xl font-bold mb-4 italic text-blue-400 border-b pb-2 border-blue-200 dark:border-blue-700">
+      <h2 className="text-2xl font-bold mb-4 italic text-blue-600 dark:text-red-600 border-b pb-2 border-blue-200 dark:border-blue-700">
         {drugInfo.name}
       </h2>
 
@@ -44,10 +44,10 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
         {/* Target */}
         {drugInfo.target && (
           <div>
-            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-400 text-opacity-100 uppercase tracking-wide mb-1">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-blue-600 uppercase tracking-wide mb-1">
               Target
             </h3>
-            <p className="text-lg text-gray-800 dark:text-gray-200">
+            <p className="text-lg text-gray-800 dark:text-black">
               {drugInfo.target}
             </p>
           </div>
@@ -56,10 +56,10 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
         {/* Mechanism */}
         {drugInfo.mechanism && (
           <div>
-            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-400 text-opacity-100 uppercase tracking-wide mb-1">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-blue-600 uppercase tracking-wide mb-1">
               Mechanism of Action
             </h3>
-            <p className="text-lg text-gray-800 dark:text-gray-200">
+            <p className="text-lg text-gray-800 dark:text-black">
               {drugInfo.mechanism}
             </p>
           </div>
@@ -70,20 +70,20 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             {drugInfo.molecularFormula && (
               <div>
-                <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-400 text-opacity-100 uppercase tracking-wide mb-1">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-blue-600 uppercase tracking-wide mb-1">
                   Molecular Formula
                 </h3>
-                <p className="text-base text-gray-800 dark:text-gray-200 font-mono bg-black/5 dark:bg-white/5 px-2 py-1 rounded">
+                <p className="text-base text-gray-800 dark:text-black font-mono">
                   {drugInfo.molecularFormula}
                 </p>
               </div>
             )}
             {drugInfo.molecularWeight && (
               <div>
-                <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-400 text-opacity-100 uppercase tracking-wide mb-1">
+                <h3 className="text-sm font-semibold text-gray-800  dark:text-blue-600 uppercase tracking-wide mb-1">
                   Molecular Weight
                 </h3>
-                <p className="text-base text-gray-800 dark:text-gray-200">
+                <p className="text-base text-white dark:text-black ">
                   {drugInfo.molecularWeight} g/mol
                 </p>
               </div>
@@ -94,10 +94,10 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
         {/* Description */}
         {drugInfo.description && (
           <div className="pt-2">
-            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-400 text-opacity-100 uppercase tracking-wide mb-1">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-blue-600 uppercase tracking-wide mb-1">
               Description
             </h3>
-            <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+            <p className="text-base text-white dark:text-black leading-relaxed">
               {drugInfo.description}
             </p>
           </div>
@@ -106,7 +106,7 @@ function DrugInfoCard({ drugInfo }: { drugInfo: DrugInfo }) {
         {/* PubChem ID */}
         {drugInfo.pubchemId && (
           <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Source: PubChem CID {drugInfo.pubchemId}
             </p>
           </div>

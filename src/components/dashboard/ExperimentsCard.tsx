@@ -23,10 +23,10 @@ export default function ExperimentsCard() {
           href="/results/log-experimental"
           className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
         >
-          \{" "}
+          {" "}
           <div className="relative h-40 w-40 mb-8 group">
             <Image
-              src="/logg.png"
+              src="/book.png"
               alt="Log Experimental Result"
               fill
               className="object-contain group-hover:scale-110 transition-transform duration-300"

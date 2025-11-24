@@ -11,7 +11,7 @@ export default function LogExperimentalResultCard() {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  const titleColor    = isLight ? "text-gray-900" : "text-white";
+  const titleColor = isLight ? "text-gray-900" : "text-white";
   const subtitleColor = isLight ? "text-gray-700" : "text-gray-300";
 
   return (
@@ -23,7 +23,7 @@ export default function LogExperimentalResultCard() {
         {/* IMAGE with more spacing */}
         <div className="relative h-40 w-40 mb-8">
           <Image
-            src="/logg.png"
+            src="book.png"
             alt="Log Experimental Result"
             fill
             className="object-contain"
@@ -31,11 +31,15 @@ export default function LogExperimentalResultCard() {
           />
         </div>
 
-        <h3 className={`text-base md:text-lg font-semibold leading-snug ${titleColor}`}>
+        <h3
+          className={`text-base md:text-lg font-semibold leading-snug ${titleColor}`}
+        >
           Log Experimental Results
         </h3>
 
-        <p className={`mt-1 text-[13px] md:text-sm font-normal tracking-wide max-w-xs ${subtitleColor}`}>
+        <p
+          className={`mt-1 text-[13px] md:text-sm font-normal tracking-wide max-w-xs ${subtitleColor}`}
+        >
           Record and save your own experimental test results
         </p>
       </Link>
